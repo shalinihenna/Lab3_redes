@@ -65,6 +65,16 @@ def timeGraphic(data, rate,title):
 	t = linspace(0, duration, len(data)) # Intervalos de tiempo de 0 a t, generando la misma cantidad de datos que hay en data o vector tiempo
 	makeGraphic(title, "Tiempo [s]", t, "Amplitud [dB]", data)
 
+
+def demoduladorAM(percentage,timesModulated,dataModulated):
+    timesCarrier = linspace(0,totalTime,250000*totalTime)
+    dataCarrier = cos(2*pi*62500*timesCarrier)
+    demoduleAM = dataModulated*dataCarrier
+    return demoduleAM
+
+def saveWav(title, rate, data):
+        write(title + ".wav", rate, data.astype('int16'))
+
 def modulacionAM(percentage,dataAudio,timesAudio,rate,totalTime):
     #Señal Portadora
     timesCarrier = linspace(0,totalTime,250000*totalTime)
@@ -78,25 +88,28 @@ def modulacionAM(percentage,dataAudio,timesAudio,rate,totalTime):
 
     #Gráficos
     fig = plt.figure(1)
-    plt.subplot(311)
+    plt.subplot(411)
     plt.title("Señal Audio")
     graph1 = plt.plot(timesCarrier[0:1000],newData[0:1000])
-    plt.subplot(312)
+    plt.subplot(412)
     plt.title("Señal Portadora")
     graph2 = plt.plot(timesCarrier[0:1000],dataCarrier[0:1000])
-    plt.subplot(313)
+    plt.subplot(413)
     plt.title("Señal Modulada AM al " +str(percentage)+"%")
     graph3 = plt.plot(timesCarrier[0:1000],AM[0:1000])
 
+    demo = demoduladorAM(percentage,timesCarrier,AM)
+
+
+    plt.subplot(414)
+    plt.title("Señal DeModulada AM al " +str(percentage)+"%")
+    graph3 = plt.plot(timesCarrier[0:1000],demo[0:1000])
+    saveWav("salida", 250000, demo)
     plt.savefig("images/modulacionAM"+str(percentage)+".png")
     plt.show()
+    
+    saveWav("salida", 250000, demo)
     return AM,timesCarrier
-
-def demoduladorAM(percentage,timesModulated,dataModulated):
-    timesCarrier = linspace(0,totalTime,250000*totalTime)
-    dataCarrier = 100*cos(2*pi*62500*timesCarrier)
-    demoduleAM = dataModulated*dataCarrier
-    return demoduleAM
 
 def modFM(percentage, dataAudio, timesAudio, rate, totalTime):
         freqP = 5/2 * rate # Se necesita de una frecuencia portadora que sea la mitad de la freq obtenida y minimo 4 veces mayor a la freq de muestreo.
@@ -130,8 +143,7 @@ def modFM(percentage, dataAudio, timesAudio, rate, totalTime):
         plt.show()
         return 
   
-def saveWav(title, rate, data):
-        write(title + ".wav", rate, data.astype('int16'))
+
 
 def tFourier(data,  rate):
         n = len(data)
