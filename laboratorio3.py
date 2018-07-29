@@ -85,6 +85,36 @@ def modulacionAM(percentage,dataAudio,timesAudio,rate,totalTime):
     plt.show()
     return
 
+def modFM(percentage, dataAudio, timesAudio, rate, totalTime):
+        freqP = 5/2 * rate # Se necesita de una frecuencia portadora que sea la mitad de la freq obtenida y minimo 4 veces mayor a la freq de muestreo.
+        # ^ Eso da 20480
+        
+        # Señal portadora
+        A = 1 # Amplitud definida para la señal portadora
+        timesCarrier = linspace(0, totalTime, 250000*totalTime)
+        dataCarrier = A * cos(pi * timesCarrier * 6500) # Podriamos cambiar el 6500 por freqP
+        # Reestructuración de datos originales
+        dataAudio =  interp(timesCarrier, timesAudio, dataAudio)
+        timesAudio = timesCarrier
+        # Señal modulada en su frecuencia
+        signalIntegrate =  integrate.cumtrapz(dataAudio, timesAudio, initial=0) # Integral acumulada
+        dataModulated = A * cos(pi * timesCarrier * 6500 + (percentage/100) * signalIntegrate)
+
+
+        plt.subplot(311)
+        plt.title("Señal del Audio")
+        plt.plot(timesAudio[:5000], dataAudio[:5000])
+        
+        plt.subplot(312)
+        plt.title("Señal Portadora")
+        plt.plot(timesCarrier[:5000], dataCarrier[:5000], linewidth=0.3, color = "red")
+        
+        plt.subplot(313)
+        plt.title("Modulación FM "+str(percentage)+" %")
+        plt.plot(timesAudio[:5000], dataModulated[:5000], linewidth=0.3, color = "green", marker = "o", markersize= 0.5)
+        plt.show()
+        return 
+
 
 
 ###################################################
