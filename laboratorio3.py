@@ -1,5 +1,7 @@
-#Parte 1:
+#HECHO:
 ### 1. Utilice la señal “handel.wav” publicada en ​ www.udesantiagovirtual.cl
+
+#POR HACER:
 ### 2. Aplique una modulación AM y una modulación FM al 15%, 100% y 125% (porcentaje
 ###   de modulación). Un gráfico por cada modulación ayudará a exponer los resultados
 ###   obtenidos.
@@ -25,9 +27,10 @@
 ################## Importaciones ##################
 ###################################################
 import numpy as np
-from numpy import linspace,cos
+from numpy import linspace,cos,interp
 from scipy.io.wavfile import read, write
 import matplotlib.pyplot as plt
+from matplotlib import animation
 from math import pi
 
 ###################################################
@@ -59,24 +62,59 @@ def timeGraphic(data, rate,title):
 	t = linspace(0, duration, len(data)) # Intervalos de tiempo de 0 a t, generando la misma cantidad de datos que hay en data o vector tiempo
 	makeGraphic(title, "Tiempo [s]", t, "Amplitud [dB]", data)
 
+def modulacionAM(percentage,dataAudio,timesAudio,rate,totalTime):
+    #Señal Portadora
+   
+    timesCarrier = linspace(0,totalTime,250000*totalTime)
+    dataCarrier = (percentage/100)*cos(2*pi*62500*timesCarrier)
+
+    newData = interp(timesCarrier,timesAudio,dataAudio)
+
+    AM = dataCarrier*newData
+
+    plt.subplot(311)
+    graph1 = plt.plot(timesCarrier[0:1000],newData[0:1000])
+
+    plt.subplot(312)
+    graph2 = plt.plot(timesCarrier[0:1000],dataCarrier[0:1000])
+
+    plt.subplot(313)
+    graph3 = plt.plot(timesCarrier[0:1000],AM[0:1000])
+
+    #anim = animation.FuncAnimation(fig, animate, init_func=init,frames=100, interval=20, blit=True)
+    plt.show()
+    return
+
+
 
 ###################################################
 ################ Bloque Principal #################
 ###################################################
-#rate,data,times = openWav("handel.wav")	 #rate = frecuencia, data = tiempo
+rate, data, times = openWav("handel.wav") #rate = frecuencia_muestreo, data = datos(eje y), times = tiempos(eje x)
 #timeGraphic(data,rate,"Señal Original")
+totalTime = len(data)/rate
+print(totalTime)
+modulacionAM(15,data,times,rate,totalTime)
+modulacionAM(100,data,times,rate,totalTime)
+modulacionAM(125,data,times,rate,totalTime)
 
-tiemposMensaje = linspace(0,1,5000)
+
+"""
+tiemposMensaje = linspace(0,1,2500)
 datosMensaje = cos(2*pi*2*tiemposMensaje)  #-> frecuencia = 2 vueltas en 1 seg
 makeGraphic("Mensaje", "ejex",tiemposMensaje,"ejey",datosMensaje)
 
-tiemposPortador = linspace(0,1,5000) 
-datosPortador = 2*cos(2*pi*100*tiemposPortador)
+tiemposPortador = linspace(0,1,2500) 
+datosPortador = 2*cos(2*pi*1000*tiemposPortador)
 makeGraphic("Señal portador", "ejex",tiemposPortador,"ejey",datosPortador)
 
 modulado = datosMensaje*datosPortador
 makeGraphic("Modulado", "ejex",tiemposPortador,"ejey",modulado)
+"""
 
 
+#APUNTES:
 #Aliasing al tener 1000 al ocupar un poco más del doble
 #Mientras más lejos esté, más "bonito" se ve el graáfico
+#Analizar con la transformada de fourier
+#Animación gráficos
